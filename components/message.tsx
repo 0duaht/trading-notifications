@@ -181,36 +181,36 @@ const PurePreviewMessage = ({
                   );
                 }
 
-                if (state === 'result') {
-                  const { result } = toolInvocation;
+                // if (state === 'result') {
+                //   const { result } = toolInvocation;
 
-                  return (
-                    <div key={toolCallId}>
-                      {toolName === 'getWeather' ? (
-                        <Weather weatherAtLocation={result} />
-                      ) : toolName === 'createDocument' ? (
-                        <DocumentPreview
-                          isReadonly={isReadonly}
-                          result={result}
-                        />
-                      ) : toolName === 'updateDocument' ? (
-                        <DocumentToolResult
-                          type="update"
-                          result={result}
-                          isReadonly={isReadonly}
-                        />
-                      ) : toolName === 'requestSuggestions' ? (
-                        <DocumentToolResult
-                          type="request-suggestions"
-                          result={result}
-                          isReadonly={isReadonly}
-                        />
-                      ) : (
-                        <pre>{JSON.stringify(result, null, 2)}</pre>
-                      )}
-                    </div>
-                  );
-                }
+                //   return (
+                //     <div key={toolCallId}>
+                //       {toolName === 'getWeather' ? (
+                //         <Weather weatherAtLocation={result} />
+                //       ) : toolName === 'createDocument' ? (
+                //         <DocumentPreview
+                //           isReadonly={isReadonly}
+                //           result={result}
+                //         />
+                //       ) : toolName === 'updateDocument' ? (
+                //         <DocumentToolResult
+                //           type="update"
+                //           result={result}
+                //           isReadonly={isReadonly}
+                //         />
+                //       ) : toolName === 'requestSuggestions' ? (
+                //         <DocumentToolResult
+                //           type="request-suggestions"
+                //           result={result}
+                //           isReadonly={isReadonly}
+                //         />
+                //       ) : (
+                //         <pre>{JSON.stringify(result, null, 2)}</pre>
+                //       )}
+                //     </div>
+                //   );
+                // }
               }
             })}
 

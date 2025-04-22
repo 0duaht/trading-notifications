@@ -18,11 +18,13 @@ import {
   getMostRecentUserMessage,
   getTrailingMessageId,
 } from '@/lib/utils';
+import { getCurrentTime } from '@/lib/utils/time';
 import { generateTitleFromUserMessage } from '../../actions';
 import { createDocument } from '@/lib/ai/tools/create-document';
 import { updateDocument } from '@/lib/ai/tools/update-document';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { getWeather } from '@/lib/ai/tools/get-weather';
+import { getRates } from '@/lib/ai/tools/get_rates';
 import { isProductionEnvironment } from '@/lib/constants';
 import { myProvider } from '@/lib/ai/providers';
 
@@ -30,17 +32,22 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
+    const session = await auth();
     const {
       id,
       messages,
       selectedChatModel,
+      userTime,
     }: {
       id: string;
       messages: Array<UIMessage>;
       selectedChatModel: string;
+      userTime?: string;
     } = await request.json();
-
-    const session = await auth();
+    console.log('selectedChatModel is', selectedChatModel)
+    console.log('userTime is', userTime)
+    // Use provided userTime or fallback to server time
+    const timeToUse = userTime || getCurrentTime();
 
     if (!session || !session.user || !session.user.id) {
       return new Response('Unauthorized', { status: 401 });
@@ -79,11 +86,12 @@ export async function POST(request: Request) {
       ],
     });
 
+    console.log('prompt is', systemPrompt({ selectedChatModel, userTime: timeToUse }))
     return createDataStreamResponse({
       execute: (dataStream) => {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel }),
+          system: systemPrompt({ selectedChatModel, userTime: timeToUse }),
           messages,
           maxSteps: 5,
           experimental_activeTools:
@@ -94,6 +102,7 @@ export async function POST(request: Request) {
                   'createDocument',
                   'updateDocument',
                   'requestSuggestions',
+                  'getRates',
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateUUID,
@@ -105,6 +114,7 @@ export async function POST(request: Request) {
               session,
               dataStream,
             }),
+            getRates,
           },
           onFinish: async ({ response }) => {
             if (session.user?.id) {

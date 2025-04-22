@@ -7,6 +7,7 @@ import useSWR, { useSWRConfig } from 'swr';
 import { ChatHeader } from '@/components/chat-header';
 import type { Vote } from '@/lib/db/schema';
 import { fetcher, generateUUID } from '@/lib/utils';
+import { getUserTime } from '@/lib/utils/time';
 import { Artifact } from './artifact';
 import { MultimodalInput } from './multimodal-input';
 import { Messages } from './messages';
@@ -30,6 +31,12 @@ export function Chat({
   isReadonly: boolean;
 }) {
   const { mutate } = useSWRConfig();
+  
+  const body = {
+    id,
+    selectedChatModel: selectedChatModel,
+    userTime: getUserTime()
+  }
 
   const {
     messages,
@@ -43,7 +50,7 @@ export function Chat({
     reload,
   } = useChat({
     id,
-    body: { id, selectedChatModel: selectedChatModel },
+    body,
     initialMessages,
     experimental_throttle: 100,
     sendExtraMessageFields: true,
